@@ -7,6 +7,7 @@ use tokio::time::Duration;
 
 #[derive(Clone)]
 pub struct DefinedPaymentActivity {
+    name: Option<String>,
     destination: NodeInfo,
     start: Option<Duration>,
     count: Option<u64>,
@@ -16,6 +17,7 @@ pub struct DefinedPaymentActivity {
 
 impl DefinedPaymentActivity {
     pub fn new(
+        name: Option<String>,
         destination: NodeInfo,
         start: Option<Duration>,
         count: Option<u64>,
@@ -23,6 +25,7 @@ impl DefinedPaymentActivity {
         amount: ValueOrRange<u64>,
     ) -> Self {
         DefinedPaymentActivity {
+            name,
             destination,
             start,
             count,
@@ -36,8 +39,8 @@ impl fmt::Display for DefinedPaymentActivity {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
             f,
-            "static payment of {} to {} every {}s",
-            self.amount, self.destination, self.wait
+            "[{:?}] static payment of {} to {} every {}s",
+            self.name, self.amount, self.destination, self.wait
         )
     }
 }
