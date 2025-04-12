@@ -164,6 +164,8 @@ pub type Interval = ValueOrRange<u16>;
 /// This is constructed during activity validation and passed along to the [Simulation].
 #[derive(Debug, Clone)]
 pub struct ActivityDefinition {
+    /// Optional name/identifier for this activity
+    pub name: Option<String>,
     /// The source of the payment.
     pub source: NodeInfo,
     /// The destination of the payment.

@@ -8,7 +8,7 @@ use simln_lib::{
     ActivityDefinition, Amount, Interval, LightningError, LightningNode, NodeId, NodeInfo,
     Simulation, SimulationCfg, WriteResults,
 };
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::fs;
 use std::ops::AsyncFn;
 use std::path::PathBuf;
@@ -100,6 +100,9 @@ enum NodeConnection {
 /// [NodeId], which enables the use of public keys and aliases in the simulation description.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct ActivityParser {
+    /// Optional name/identifier for this activity
+    #[serde(default)]
+    pub name: Option<String>,
     /// The source of the payment.
     #[serde(with = "serializers::serde_node_id")]
     pub source: NodeId,
@@ -259,9 +262,35 @@ async fn validate_activities(
     get_node_info: impl AsyncFn(&PublicKey) -> Result<NodeInfo, LightningError>,
 ) -> Result<Vec<ActivityDefinition>, LightningError> {
     let mut validated_activities = vec![];
+    let mut activity_names = HashSet::new();
 
     // Make all the activities identifiable by PK internally
-    for act in activity.into_iter() {
+    for (index, act) in activity.into_iter().enumerate() {
+        // Generate a default name if one is not provided
+        let name = match &act.name {
+            Some(name) if !name.is_empty() => {
+                // Optionally check for duplicate names
+                if !activity_names.insert(name.clone()) {
+                    return Err(LightningError::ValidationError(format!(
+                        "duplicate activity name: {}",
+                        name
+                    )));
+                }
+                name.clone()
+            },
+            _ => {
+                let default_name = format!("Activity-{}", index);
+                // Ensure the default name doesn't conflict with an explicit name
+                let mut unique_name = default_name.clone();
+                let mut counter = 1;
+                while !activity_names.insert(unique_name.clone()) {
+                    unique_name = format!("{}-{}", default_name, counter);
+                    counter += 1;
+                }
+                unique_name
+            }
+        };
+
         // We can only map aliases to nodes we control, so if either the source or destination alias
         // is not in alias_node_map, we fail
         let source = if let Some(source) = match &act.source {
@@ -297,6 +326,7 @@ async fn validate_activities(
         };
 
         validated_activities.push(ActivityDefinition {
+            name: Some(name),
             source,
             destination,
             interval_secs: act.interval_secs,
