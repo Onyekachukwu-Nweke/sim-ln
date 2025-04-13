@@ -7,6 +7,7 @@ use tokio::time::Duration;
 
 #[derive(Clone)]
 pub struct DefinedPaymentActivity {
+    #[allow(dead_code)]
     name: Option<String>,
     destination: NodeInfo,
     start: Option<Duration>,

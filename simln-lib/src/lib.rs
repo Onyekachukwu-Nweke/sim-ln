@@ -964,10 +964,10 @@ impl Simulation {
             let pe_sender = sender.clone();
             tasks.spawn(async move {
                 let source = executor.source_info.clone();
-                let name = executor.name.clone();
+                let name = executor.name.as_deref().unwrap();
 
                 log::info!(
-                    "[{:?}] Starting activity producer for {}: {}.",
+                    "[{}] Starting activity producer for {}: {}.",
                     name,
                     source,
                     executor.payment_generator

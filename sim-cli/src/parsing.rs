@@ -288,7 +288,7 @@ async fn validate_activities(
                     counter += 1;
                 }
                 unique_name
-            }
+            },
         };
 
         // We can only map aliases to nodes we control, so if either the source or destination alias
