@@ -90,6 +90,7 @@ mod tests {
 
     #[test]
     fn test_defined_activity_generator() {
+        let name: String = "test_generator".to_string();
         let node = create_nodes(1, 100000);
         let node = &node.first().unwrap().0;
 
@@ -97,6 +98,7 @@ mod tests {
         let payment_amt = 50;
 
         let generator = DefinedPaymentActivity::new(
+            Option::from(name),
             node.clone(),
             None,
             None,
