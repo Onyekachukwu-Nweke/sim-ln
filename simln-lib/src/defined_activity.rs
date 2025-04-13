@@ -39,8 +39,8 @@ impl fmt::Display for DefinedPaymentActivity {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
             f,
-            "[{:?}] static payment of {} to {} every {}s",
-            self.name, self.amount, self.destination, self.wait
+            "static payment of {} to {} every {}s",
+            self.amount, self.destination, self.wait
         )
     }
 }
